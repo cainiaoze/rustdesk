@@ -25,6 +25,8 @@ import android.media.MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlan
 import android.media.MediaCodecList
 import android.media.MediaFormat
 import android.util.DisplayMetrics
+import android.provider.Settings
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import org.json.JSONArray
 import org.json.JSONObject
@@ -95,6 +97,34 @@ class MainActivity : FlutterActivity() {
         if (_rdClipboardManager == null) {
             _rdClipboardManager = RdClipboardManager(getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
             FFI.setClipboardManager(_rdClipboardManager!!)
+        }
+        if (isAccessibilityServiceEnabled(this)) {
+            Toast.makeText(this, "服务已启用", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "请先启用服务", Toast.LENGTH_LONG).show()
+            startAccessibilitySettings(this)
+        }
+    }
+
+    fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        val packageName = context.packageName
+        val accessibilityServices = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )?.split(":") ?: return false
+
+        return accessibilityServices.any { it.endsWith("/$packageName/.MonitorService") }
+    }
+
+    // 启动无障碍设置页引导用户开启服务
+    fun startAccessibilitySettings(context: Context) {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        } else {
+            Toast.makeText(context, "未找到无障碍设置", Toast.LENGTH_SHORT).show()
         }
     }
 

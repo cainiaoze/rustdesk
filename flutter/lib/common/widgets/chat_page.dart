@@ -100,8 +100,8 @@ class ChatPage extends StatelessWidget implements PageShape {
                     onSend: chatModel.send,
                     currentUser: chatModel.me,
                     messages: chatModel
-                            .messages[chatModel.currentKey]?.chatMessages ??
-                        [],
+                            .messages[chatModel.currentKey]?.chatMessages ?.where((message) => message.user.id != chatModel.me.id) // 过滤当前用户消息
+                            .toList() ?? [],
                     readOnly: readOnly,
                     inputOptions: InputOptions(
                       focusNode: chatModel.inputNode,
