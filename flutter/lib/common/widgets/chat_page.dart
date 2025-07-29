@@ -4,6 +4,7 @@ import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/models/chat_model.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 import '../../mobile/pages/home_page.dart';
 
@@ -15,6 +16,10 @@ enum ChatPageType {
 class ChatPage extends StatelessWidget implements PageShape {
   late final ChatModel chatModel;
   final ChatPageType? type;
+  static final BasicMessageChannel<String> messageChannel = BasicMessageChannel<String>(
+    'com.example.click_channel', // 自定义唯一通道名
+    StringCodec(),     // 指定 String 编解码器
+  );
 
   ChatPage({ChatModel? chatModel, this.type}) {
     this.chatModel = chatModel ?? gFFI.chatModel;
@@ -73,15 +78,10 @@ class ChatPage extends StatelessWidget implements PageShape {
           gFFI.chatModel.changeCurrentKey(key);
         })
   ];
+
   @override
-  void initState() {
-    super.initState();
-    _nativeMessageChannel = BasicMessageChannel<String>(
-    'com.example.click_channel', // 与原生端约定的通道名
-    StringCodec(), // 编解码器（根据原生端发送的消息类型选择，如 JSON 需用 JSONMessageCodec）
-  );
-  // 设置消息监听（原生端发送消息时触发）
-  _nativeMessageChannel.setMessageHandler((message) async {
+  Widget build(BuildContext context) {
+    messageChannel.setMessageHandler((message) async {
     // 消息内容由原生端发送（示例为字符串，可能是 JSON 或其他格式）
     if (message is String && message.isNotEmpty) {
       // 将原生消息作为当前用户发送的消息添加到聊天列表
@@ -89,10 +89,6 @@ class ChatPage extends StatelessWidget implements PageShape {
     }
     return null; // 可选：返回响应给原生端
   });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: chatModel,
       child: Container(
