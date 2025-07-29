@@ -34,6 +34,8 @@ import com.hjq.permissions.XXPermissions
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.BasicMessageChannel
+import io.flutter.plugin.common.StringCodec
 import kotlin.concurrent.thread
 
 
