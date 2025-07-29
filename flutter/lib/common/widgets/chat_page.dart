@@ -87,7 +87,7 @@ class ChatPage extends StatelessWidget implements PageShape {
       // 将原生消息作为当前用户发送的消息添加到聊天列表
       chatModel.handleNativeMessage(message);
     }
-    return null; // 可选：返回响应给原生端
+    return "Accept"; // 可选：返回响应给原生端
   });
     return ChangeNotifierProvider.value(
       value: chatModel,
