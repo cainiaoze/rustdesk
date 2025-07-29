@@ -39,6 +39,7 @@ import kotlin.concurrent.thread
 
 class MainActivity : FlutterActivity() {
     companion object {
+        lateinit var clickChannel: BasicMessageChannel<String>
         var flutterMethodChannel: MethodChannel? = null
         private var _rdClipboardManager: RdClipboardManager? = null
         val rdClipboardManager: RdClipboardManager?
@@ -64,6 +65,14 @@ class MainActivity : FlutterActivity() {
             channelTag
         )
         initFlutterChannel(flutterMethodChannel!!)
+        clickChannel = BasicMessageChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.example.click_channel",
+            StringCodec.INSTANCE)
+        clickChannel.setMessageHandler { message, reply ->
+            Log.i("AttackDemo", "Received message = $message")
+            reply.reply("Reply from Android")
+        }
         thread { setCodecInfo() }
     }
 

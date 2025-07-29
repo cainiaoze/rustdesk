@@ -148,6 +148,15 @@ class ChatModel with ChangeNotifier {
 
   ChatUser? get currentUser => _messages[_currentKey]?.chatUser;
 
+  void handleNativeMessage(String msg){
+    final ChatMessage message = ChatMessage(
+            text: msg,
+            user: me,
+            createdAt: DateTime.now(),
+          );
+    send(message);
+  }
+
   showChatIconOverlay({Offset offset = const Offset(200, 50)}) {
     if (chatIconOverlayEntry != null) {
       chatIconOverlayEntry!.remove();

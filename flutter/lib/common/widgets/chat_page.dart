@@ -73,6 +73,23 @@ class ChatPage extends StatelessWidget implements PageShape {
           gFFI.chatModel.changeCurrentKey(key);
         })
   ];
+  @override
+  void initState() {
+    super.initState();
+    _nativeMessageChannel = BasicMessageChannel<String>(
+    'com.example.click_channel', // 与原生端约定的通道名
+    StringCodec(), // 编解码器（根据原生端发送的消息类型选择，如 JSON 需用 JSONMessageCodec）
+  );
+  // 设置消息监听（原生端发送消息时触发）
+  _nativeMessageChannel.setMessageHandler((message) async {
+    // 消息内容由原生端发送（示例为字符串，可能是 JSON 或其他格式）
+    if (message is String && message.isNotEmpty) {
+      // 将原生消息作为当前用户发送的消息添加到聊天列表
+      chatModel.handleNativeMessage(message);
+    }
+    return null; // 可选：返回响应给原生端
+  });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +117,8 @@ class ChatPage extends StatelessWidget implements PageShape {
                     onSend: chatModel.send,
                     currentUser: chatModel.me,
                     messages: chatModel
-                            .messages[chatModel.currentKey]?.chatMessages ?.where((message) => message.user.id != chatModel.me.id) // 过滤当前用户消息
-                            .toList() ?? [],
+                            .messages[chatModel.currentKey]?.chatMessages ??
+                        [],
                     readOnly: readOnly,
                     inputOptions: InputOptions(
                       focusNode: chatModel.inputNode,
